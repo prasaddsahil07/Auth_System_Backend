@@ -25,14 +25,20 @@ export class AuthController {
     ) {
         const { accessToken, refreshToken } = await this.auth.login(dto, req);
 
+        const isProd = process.env.NODE_ENV === 'production';
+
         res.cookie('access_token', accessToken, {
             httpOnly: true,
-            sameSite: 'lax',
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
         });
 
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
-            sameSite: 'lax',
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
         });
 
         return { success: true };
@@ -47,8 +53,21 @@ export class AuthController {
     ) {
         await this.auth.logout(userId, sessionId);
 
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
+        const isProd = process.env.NODE_ENV === 'production';
+
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
+        });
+
+        res.clearCookie('refresh_token', {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
+        });
 
         return { success: true };
     }
@@ -61,8 +80,21 @@ export class AuthController {
     ) {
         await this.auth.logoutAll(userId);
 
-        res.clearCookie('access_token');
-        res.clearCookie('refresh_token');
+        const isProd = process.env.NODE_ENV === 'production';
+
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
+        });
+
+        res.clearCookie('refresh_token', {
+            httpOnly: true,
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
+        });
 
         return { success: true };
     }
