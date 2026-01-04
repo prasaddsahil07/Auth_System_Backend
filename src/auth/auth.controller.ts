@@ -72,20 +72,36 @@ export class AuthController {
     async refresh(@Req() req, @Res({ passthrough: true }) res: Response) {
         const { userId, sessionId, refreshToken } = req.user;
 
+        const isProd = process.env.NODE_ENV === 'production';
+
         const tokens = await this.auth.refreshTokens(
             userId,
             sessionId,
             refreshToken,
         );
 
+        // res.cookie('access_token', tokens.accessToken, {
+        //     httpOnly: true,
+        //     sameSite: 'lax',
+        // });
+
         res.cookie('access_token', tokens.accessToken, {
             httpOnly: true,
-            sameSite: 'lax',
+            secure: isProd,          // 🔥 REQUIRED
+            sameSite: isProd ? 'none' : 'lax', // 🔥 REQUIRED
+            path: '/',
         });
+
+        // res.cookie('refresh_token', tokens.refreshToken, {
+        //     httpOnly: true,
+        //     sameSite: 'lax',
+        // });
 
         res.cookie('refresh_token', tokens.refreshToken, {
             httpOnly: true,
-            sameSite: 'lax',
+            secure: isProd,
+            sameSite: isProd ? 'none' : 'lax',
+            path: '/',
         });
 
         return { success: true };
